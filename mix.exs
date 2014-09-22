@@ -13,7 +13,7 @@ defmodule TimexInterval.Mixfile do
 
   defp deps do
     [
-      {:timex, "~> 0.12"},
+      {:timex, github: "bitwalker/timex", tag: "0.12.7"},
     ]
   end
 
