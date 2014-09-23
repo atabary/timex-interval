@@ -14,14 +14,14 @@ defmodule TimexInterval.DateTimeInterval do
   @doc """
   Make a new interval given a DateTime objects and a shift, or two DateTime objects
   """
-  def new(start_instant, end_instant_or_keywords, start_open \\ false, end_open \\ true) do
+  def new(start_instant, end_instant_or_keywords, start_open \\ false, end_open \\ true, step \\ [days: 1]) do
     end_instant = if is_list(end_instant_or_keywords) do
       Date.shift(start_instant, end_instant_or_keywords)
     else
       end_instant_or_keywords
     end
     %TimexInterval.DateTimeInterval{start_instant: start_instant, end_instant: end_instant,
-                                    start_open: start_open, end_open: end_open}
+                                    start_open: start_open, end_open: end_open, step: step}
   end
 
   @doc """
