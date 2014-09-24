@@ -4,7 +4,7 @@ defmodule TimexInterval.Mixfile do
   def project do
     [ app: :timex_interval,
       version: "0.1.0",
-      elixir: "~> 1.0.0",
+      elixir: ">=1.0.0",
       description: "A date/time interval library for Elixir projects, based on Timex.",
       package: package,
       docs: [readme: true, main: "README"],
@@ -12,9 +12,7 @@ defmodule TimexInterval.Mixfile do
   end
 
   defp deps do
-    [
-      {:timex, github: "bitwalker/timex", tag: "0.12.7"},
-    ]
+    [ {:timex, github: "bitwalker/timex", tag: "0.12.7"} ]
   end
 
   defp package do
