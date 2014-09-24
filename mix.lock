@@ -1,1 +1,1 @@
-%{"timex": {:git, "git://github.com/bitwalker/timex.git", "de73670e0571f43391faa65093bb38c11fc6c009", [tag: "0.12.7"]}}
+%{"timex": {:package, "0.12.8"}}
