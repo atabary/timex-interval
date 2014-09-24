@@ -1,6 +1,6 @@
 # Timex Interval
 
-[![hex.pm version](https://img.shields.io/hexpm/v/timex_interval.svg)](https://hex.pm/packages/timex_interval) [![hex.pm downloads](https://img.shields.io/hexpm/dt/timex_interval.svg?style=flat)](https://hex.pm/packages/timex_interval) [![travis.ci build status](http://img.shields.io/travis/atabary/timex-interval/master.svg)](https://travis-ci.org/atabary/timex-interval)
+[![hex.pm version](https://img.shields.io/hexpm/v/timex_interval.svg)](https://hex.pm/packages/timex_interval) [![hex.pm downloads](https://img.shields.io/hexpm/dt/timex_interval.svg)](https://hex.pm/packages/timex_interval) [![travis.ci build status](http://img.shields.io/travis/atabary/timex-interval/master.svg)](https://travis-ci.org/atabary/timex-interval)
 
 Timex Interval is an extension of [Timex](https://github.com/bitwalker/timex) that deals with date/time intervals.
 
