@@ -2,53 +2,53 @@
 
 Timex Interval is an extension of [Timex](https://github.com/bitwalker/timex) that deals with date/time intervals.
 
-It's useful to iterate over time intervals, for instance every day between two dates.
+Intervals are enumerable, making them useful to iterate over time intervals, for instance every day between two dates.
 
 
 ## Constructors
 
-There are two ways to generate an interval:
+The `DateTimeInterval` module provides a helper function to make new intervals.
 
-  - by giving the constructor two DateTime objects,
-  - by giving the constructor a single DateTime object and a shift (as accepted by Timex.Date.shift).
+Valid keywords:
 
-```elixir
-use Timex
-use TimexInterval
+  - `from`: the date the interval starts at (defaults to `Date.now()`)
+  - `until`: either the date the interval ends at, or a time shift that will be applied to the "from" date (defaults to `[days: 7]`)
+  - `left_open`: whether the interval is left open, defaults to #{@default_left_open}
+  - `right_open`: whether the interval is right open, defaults to #{@default_right_open}
+  - `step`: the iteration step for enumerations, defaults to `[days: 1]`
 
-DateTimeInterval.new(Date.from({2014, 9, 22}), Date.from({2014, 9, 25}))
-|> DateTimeInterval.pretty_print()
-#=> "[2014-09-22 00:00:00 UTC, 2014-09-25 00:00:00 UTC)"
-
-DateTimeInterval.new(Date.from({2014, 9, 22}), [days: 3])
-|> DateTimeInterval.pretty_print()
-#=> "[2014-09-22 00:00:00 UTC, 2014-09-25 00:00:00 UTC)"
-
-```
-
-You can also specify whether the left and right bounds are open.
+Time shifts should be keyword lists valid for use with `Timex.Date.shift`.
 
 ```elixir
 use Timex
-use TimexInterval
+alias TimexInterval.DateTimeInterval, as: Interval
 
-DateTimeInterval.new(Date.from({2014, 9, 22}), [days: 3], false, false)
-|> DateTimeInterval.pretty_print()
-#=> "[2014-09-22 00:00:00 UTC, 2014-09-25 00:00:00 UTC]"
+Interval.new(from: Date.from({2014, 9, 22}), until: Date.from({2014, 9, 29}))
+|> Interval.format!("%Y-%m-%d")
+#=> "[2014-09-22, 2014-09-29)"
+
+Interval.new(from: Date.from({2014, 9, 22}), until: [months: 5])
+|> Interval.format!("%Y-%m-%d")
+#=> "[2014-09-22, 2015-02-22)"
+
+Interval.new(from: Date.from({{2014, 9, 22}, {15, 30, 0}}), until: [mins: 20], right_open: false)
+|> Interval.format!("%H:%M")
+#=> "[15:30, 15:50]"
 
 ```
+
+Note that by default intervals are right open.
 
 
 ## Iterators
 
-The default behavior is to iterate over each day.
+`DateTimeInterval` implements the `Enumerable` protocol.
 
 ```elixir
 use Timex
-use TimexInterval
+alias TimexInterval.DateTimeInterval, as: Interval
 
-DateTimeInterval.new(Date.from({2014, 9, 22}), [days: 3])
-|> DateTimeInterval.iterate()
+Interval.new(from: Date.from({2014, 9, 22}), until: [days: 3])
 |> Enum.map(fn(dt) -> DateFormat.format!(dt, "%Y-%m-%d", :strftime) end)
 #=> ["2014-09-22", "2014-09-23", "2014-09-24"]
 ```
@@ -56,11 +56,7 @@ DateTimeInterval.new(Date.from({2014, 9, 22}), [days: 3])
 You can easily specify whether to exclude the first and last dates:
 
 ```elixir
-use Timex
-use TimexInterval
-
-DateTimeInterval.new(Date.from({2014, 9, 22}), [days: 3], false, false)
-|> DateTimeInterval.iterate()
+Interval.new(from: Date.from({2014, 9, 22}), until: [days: 3], right_open: false)
 |> Enum.map(fn(dt) -> DateFormat.format!(dt, "%Y-%m-%d", :strftime) end)
 #=> ["2014-09-22", "2014-09-23", "2014-09-24", "2014-09-25"]
 ```
@@ -68,11 +64,8 @@ DateTimeInterval.new(Date.from({2014, 9, 22}), [days: 3], false, false)
 You can of course iterate over anything else, for instance by chunks of 10 minutes:
 
 ```elixir
-use Timex
-use TimexInterval
-
-DateTimeInterval.new(Date.from({{2014, 9, 22}, {15, 0, 0}}), [hours: 1])
-|> DateTimeInterval.iterate([mins: 10])
+Interval.new(from: Date.from({{2014, 9, 22}, {15, 0, 0}}), until: [hours: 1])
+|> Interval.with_step(mins: 10)
 |> Enum.map(fn(dt) -> DateFormat.format!(dt, "%H:%M", :strftime) end)
 #=> ["15:00", "15:10", "15:20", "15:30", "15:40", "15:50"]
 ```

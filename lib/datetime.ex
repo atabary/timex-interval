@@ -1,60 +1,97 @@
 defmodule TimexInterval.DateTimeInterval do
   use Timex
 
-  @default_start Date.now()
-  @default_end Date.shift(@default_start, days: 7)
+  @default_from        Date.now()
+  @default_until       Date.shift(@default_from, days: 7)
+  @default_left_open   false
+  @default_right_open  true
+  @default_step        [days: 1]
 
   @derive Access
-  defstruct start_instant: @default_start,
-            end_instant:   @default_end,
-            start_open:    false,
-            end_open:      true,
-            step:          [days: 1]
+  defstruct from:       @default_from,
+            until:      @default_until,
+            left_open:  @default_left_open,
+            right_open: @default_right_open,
+            step:       @default_step
 
   @doc """
-  Make a new interval given a DateTime objects and a shift, or two DateTime objects
+  Make a new interval.
+
+  Note that by default intervals are right open.
+
+  Valid keywords:
+  - from: the date the interval starts at (defaults to `Date.now()`)
+  - until: either the date the interval ends at, or a time shift that will be applied to the "from" date (defaults to `[days: 7]`)
+  - left_open: whether the interval is left open, defaults to #{@default_left_open}
+  - right_open: whether the interval is right open, defaults to #{@default_right_open}
+  - step: the iteration step for enumerations, defaults to `[days: 1]`
+
+  Shifts should be keyword lists valid for use with `Timex.Date.shift`.
+
+  ## Examples
+
+    > use Timex
+    > alias TimexInterval.DateTimeInterval, as: Interval
+
+    > Interval.new(from: Date.from({2014, 9, 22}), until: Date.from({2014, 9, 29}))
+      |> Interval.format!("%Y-%m-%d")
+    #=> "[2014-09-22, 2014-09-29)"
+
+    > Interval.new(from: Date.from({2014, 9, 22}), until: [months: 5])
+      |> Interval.format!("%Y-%m-%d")
+    #=> "[2014-09-22, 2015-02-22)"
+
+    > Interval.new(from: Date.from({{2014, 9, 22}, {15, 30, 0}}), until: [mins: 20], right_open: false)
+      |> Interval.format!("%H:%M")
+    #=> "[15:30, 15:50]"
+
   """
-  def new(start_instant, end_instant_or_keywords, start_open \\ false, end_open \\ true, step \\ [days: 1]) do
-    end_instant = if is_list(end_instant_or_keywords) do
-      Date.shift(start_instant, end_instant_or_keywords)
-    else
-      end_instant_or_keywords
-    end
-    %TimexInterval.DateTimeInterval{start_instant: start_instant, end_instant: end_instant,
-                                    start_open: start_open, end_open: end_open, step: step}
+  def new(keywords \\ []) do
+    from       = Dict.get(keywords, :from,       Date.now())
+    until      = Dict.get(keywords, :until,      [days: 7])
+    left_open  = Dict.get(keywords, :left_open,  @default_left_open)
+    right_open = Dict.get(keywords, :right_open, @default_right_open)
+    step       = Dict.get(keywords, :step,       @default_step)
+
+    %TimexInterval.DateTimeInterval{from: from, until: (if is_list(until), do: Date.shift(from, until), else: until),
+                                    left_open: left_open, right_open: right_open, step: step}
   end
 
   @doc """
   Update the step for this interval.
 
-  The step should be a keyword list: anything that is valid for the Timex.Date.shift function,
-  which is used underneath.
-  """
-  def set_step(interval, step) do
-    %TimexInterval.DateTimeInterval{interval | step: step}
-  end
-
-  @doc """
-  Return a list of DateTime that spans the DateTimeInterval structure, by default with steps of one day.
-
-  The keyword list can be anything that is valid for he Timex.Date.shift function, which is used underneath.
+  The step should be a keyword list valid for use with `Timex.Date.shift`.
 
   ## Examples
 
     > use Timex
-    > DateTimeInterval.new(Date.from({2014, 9, 22}), Date.from({2014, 9, 29}))
-      |> DateTimeInterval.to_list()
-      |> Enum.map(fn(dt) -> DateFormat.format!(dt, "%Y-%m-%d", :strftime) end)
-    #> ["2014-09-22", "2014-09-23", "2014-09-24", "2014-09-25", "2014-09-26", "2014-09-27", "2014-09-28"]
+    > alias TimexInterval.DateTimeInterval, as: Interval
+    > i = Interval.new(from: Date.from({2014, 9, 22}), until: [days: 3], right_open: false)
+
+    > i |> Interval.with_step([days: 1]) |> Enum.map(fn(dt) -> DateFormat.format!(dt, "%Y-%m-%d", :strftime) end)
+    #=> ["2014-09-22", "2014-09-23", "2014-09-24", "2014-09-25"]
+
+    > i |> Interval.with_step([days: 2]) |> Enum.map(fn(dt) -> DateFormat.format!(dt, "%Y-%m-%d", :strftime) end)
+    #=> ["2014-09-22", "2014-09-24"]
+
+    > i |> Interval.with_step([days: 3]) |> Enum.map(fn(dt) -> DateFormat.format!(dt, "%Y-%m-%d", :strftime) end)
+    #=> ["2014-09-22", "2014-09-25"]
 
   """
+  def with_step(interval, step) do
+    %TimexInterval.DateTimeInterval{interval | step: step}
+  end
+
+  @doc """
+  Return a list of DateTime that spans the DateTimeInterval structure.
+  """
   def to_list(interval) do
-    if interval.start_open do
-      Date.shift(interval.start_instant, interval.step)
+    if interval.left_open do
+      Date.shift(interval.from, interval.step)
     else
-      interval.start_instant
+      interval.from
     end
-    |> to_list(interval.end_instant, interval.end_open, interval.step, [])
+    |> to_list(interval.until, interval.right_open, interval.step, [])
   end
 
   @doc """
@@ -63,38 +100,33 @@ defmodule TimexInterval.DateTimeInterval do
   ## Examples
 
     > use Timex
-    > DateTimeInterval.new(Date.from({2014, 9, 22}), Date.from({2014, 9, 29}))
-      |> DateTimeInterval.pretty_print()
-    #=> "[2014-09-22 00:00:00 UTC, 2014-09-29 00:00:00 UTC)"
+    > alias TimexInterval.DateTimeInterval, as: Interval
+
+    > Interval.new(from: Date.from({2014, 9, 22}), until: [days: 3], right_open: false) |> Interval.format!()
+    #=> "[2014-09-22 00:00, 2014-09-25 00:00]"
+
+    > Interval.new(from: Date.from({2014, 9, 22}), until: [days: 3]) |> Interval.format!("%Y-%m-%d")
+    #=> "[2014-09-22, 2014-09-25)"
 
   """
-  def pretty_print(interval) do
-    s1 = if interval.start_open, do: "(", else: "["
-    s2 = DateFormat.format!(interval.start_instant, "%Y-%m-%d %T %Z", :strftime)
+  def format!(interval, format_string \\ "%Y-%m-%d %H:%M", formatter \\ :strftime) do
+    s1 = if interval.left_open, do: "(", else: "["
+    s2 = DateFormat.format!(interval.from, format_string, formatter)
     s3 = ", "
-    s4 = DateFormat.format!(interval.end_instant, "%Y-%m-%d %T %Z", :strftime)
-    s5 = if interval.end_open, do: ")", else: "]"
+    s4 = DateFormat.format!(interval.until, format_string, formatter)
+    s5 = if interval.right_open, do: ")", else: "]"
     s1 <> s2 <> s3 <> s4 <> s5
   end
 
 
   ## Private
 
-  defp to_list(current_date, end_date, end_open, keywords, enumeration) do
-    if has_recursion_ended?(current_date, end_date, end_open) do
+  defp to_list(current_date, end_date, right_open, keywords, enumeration) do
+    if has_recursion_ended?(current_date, end_date, right_open) do
       Enum.reverse(enumeration)
     else
       next_date = Date.shift(current_date, keywords)
-      to_list(next_date, end_date, end_open, keywords, [current_date|enumeration])
-    end
-  end
-
-  defp to_list(current_date, end_date, end_open, keywords, enumeration) do
-    if has_recursion_ended?(current_date, end_date, end_open) do
-      Enum.reverse(enumeration)
-    else
-      next_date = Date.shift(current_date, keywords)
-      to_list(next_date, end_date, end_open, keywords, [current_date|enumeration])
+      to_list(next_date, end_date, right_open, keywords, [current_date|enumeration])
     end
   end
 
