@@ -1,5 +1,7 @@
 # Timex Interval
 
+[![Build Status](http://img.shields.io/travis/atabary/timex-interval/master.svg)](https://travis-ci.org/atabary/timex-interval)
+
 Timex Interval is an extension of [Timex](https://github.com/bitwalker/timex) that deals with date/time intervals.
 
 Intervals are enumerable, making them useful to iterate over time intervals, for instance every day between two dates.
