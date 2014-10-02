@@ -3,6 +3,11 @@ Changelog for Timex Interval
 
 This file lists the changes in each moment version.
 
+0.2.3
+-----
+
+- Warning suppressed: function `to_list/5` is unused
+
 0.2.2
 -----
 
