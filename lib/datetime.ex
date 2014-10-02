@@ -83,18 +83,6 @@ defmodule TimexInterval.DateTimeInterval do
   end
 
   @doc """
-  Return a list of DateTime that spans the DateTimeInterval structure.
-  """
-  def to_list(interval) do
-    if interval.left_open do
-      Date.shift(interval.from, interval.step)
-    else
-      interval.from
-    end
-    |> to_list(interval.until, interval.right_open, interval.step, [])
-  end
-
-  @doc """
   Return a human readable version of the interval.
 
   ## Examples
@@ -130,22 +118,40 @@ defmodule TimexInterval.DateTimeInterval do
     end
   end
 
-  defp has_recursion_ended?(current_date, end_date,  true), do: Date.compare(end_date, current_date) <= 0
-  defp has_recursion_ended?(current_date, end_date, false), do: Date.compare(end_date, current_date) <  0
-end
+  defimpl Enumerable do
+    def reduce(interval, acc, fun) do
+      do_reduce({get_starting_date(interval), interval.until, interval.right_open, interval.step}, acc, fun)
+    end
 
-defimpl Enumerable, for: TimexInterval.DateTimeInterval do
-  def reduce(interval, acc, fun) do
-    do_reduce(TimexInterval.DateTimeInterval.to_list(interval), acc, fun)
+    def member?(_interval, _value),
+      do: {:error, __MODULE__}
+
+    def count(_interval),
+      do: {:error, __MODULE__}
+
+    ## Private
+
+    defp do_reduce(_state, {:halt,    acc}, _fun), do: {:halted, acc}
+    defp do_reduce( state, {:suspend, acc},  fun), do: {:suspended, acc, &do_reduce(state, &1, fun)}
+
+    defp do_reduce({current_date, end_date, right_open, keywords}, {:cont, acc}, fun) do
+      if has_recursion_ended?(current_date, end_date, right_open) do
+        {:done, acc}
+      else
+        next_date = Date.shift(current_date, keywords)
+        do_reduce({next_date, end_date, right_open, keywords}, fun.(current_date, acc), fun)
+      end
+    end
+
+    defp get_starting_date(interval) do
+      if interval.left_open do
+        Date.shift(interval.from, interval.step)
+      else
+        interval.from
+      end
+    end
+
+    defp has_recursion_ended?(current_date, end_date,  true), do: Date.compare(end_date, current_date) <= 0
+    defp has_recursion_ended?(current_date, end_date, false), do: Date.compare(end_date, current_date) <  0
   end
-
-  defp do_reduce(_,     {:halt, acc}, _fun),   do: {:halted, acc}
-  defp do_reduce(list,  {:suspend, acc}, fun), do: {:suspended, acc, &do_reduce(list, &1, fun)}
-  defp do_reduce([],    {:cont, acc}, _fun),   do: {:done, acc}
-  defp do_reduce([h|t], {:cont, acc}, fun),    do: do_reduce(t, fun.(h, acc), fun)
-
-  def member?(_list, _value),
-    do: {:error, __MODULE__}
-  def count(_list),
-    do: {:error, __MODULE__}
 end
