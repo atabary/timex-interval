@@ -106,18 +106,6 @@ defmodule TimexInterval.DateTimeInterval do
     s1 <> s2 <> s3 <> s4 <> s5
   end
 
-
-  ## Private
-
-  defp to_list(current_date, end_date, right_open, keywords, enumeration) do
-    if has_recursion_ended?(current_date, end_date, right_open) do
-      Enum.reverse(enumeration)
-    else
-      next_date = Date.shift(current_date, keywords)
-      to_list(next_date, end_date, right_open, keywords, [current_date|enumeration])
-    end
-  end
-
   defimpl Enumerable do
     def reduce(interval, acc, fun) do
       do_reduce({get_starting_date(interval), interval.until, interval.right_open, interval.step}, acc, fun)
