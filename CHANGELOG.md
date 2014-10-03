@@ -3,10 +3,11 @@ Changelog for Timex Interval
 
 This file lists the changes in each moment version.
 
-Master
-------
+0.3.0
+-----
 
 - Interval duration provided by `DateTimeInterval.duration/2`.
+- `Timex` minimum required version set to `0.12.9`.
 
 0.2.3
 -----
