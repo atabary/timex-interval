@@ -12,7 +12,7 @@ defmodule TimexInterval.Mixfile do
   end
 
   defp deps do
-    [ {:timex, "~> 0.12.8"} ]
+    [ {:timex, "~> 0.12.9"} ]
   end
 
   defp package do

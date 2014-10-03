@@ -41,8 +41,8 @@ defmodule TimexInterval.DateTimeIntervalTest do
         |> I.duration(:months)
     assert temp == 5
 
-    # temp = I.new(from: Date.from({{2014, 9, 22}, {15, 30, 0}}), until: [mins: 20])
-    #     |> I.duration(:timestamp)
-    # assert temp == {0, 0, 1200}
+    temp = I.new(from: Date.from({{2014, 9, 22}, {15, 30, 0}}), until: [mins: 20])
+        |> I.duration(:timestamp)
+    assert temp == {0, 0, 1200}
   end
 end
