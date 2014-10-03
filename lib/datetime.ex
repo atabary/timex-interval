@@ -1,11 +1,11 @@
 defmodule TimexInterval.DateTimeInterval do
   use Timex
 
-  @default_from        Date.now()
-  @default_until       Date.shift(@default_from, days: 7)
-  @default_left_open   false
-  @default_right_open  true
-  @default_step        [days: 1]
+  @default_from       Date.now()
+  @default_until      Date.shift(@default_from, days: 7)
+  @default_left_open  false
+  @default_right_open true
+  @default_step       [days: 1]
 
   @derive Access
   defstruct from:       @default_from,
@@ -55,6 +55,31 @@ defmodule TimexInterval.DateTimeInterval do
 
     %TimexInterval.DateTimeInterval{from: from, until: (if is_list(until), do: Date.shift(from, until), else: until),
                                     left_open: left_open, right_open: right_open, step: step}
+  end
+
+  @doc """
+  Return the interval duration, given a unit.
+
+  When the unit is one of `:secs`, `:mins`, `:hours`, `:days`, `:weeks`, `:months`, `:years`, the result is an `integer`.
+
+  When the unit is `:timestamp`, the result is a tuple representing a valid `Timex.Time`.
+
+  ## Example
+
+    > use Timex
+    > alias TimexInterval.DateTimeInterval, as: Interval
+
+    > Interval.new(from: Date.from({2014, 9, 22}), until: [months: 5])
+      |> Interval.duration(:months)
+    #=> 5
+
+    > Interval.new(from: Date.from({{2014, 9, 22}, {15, 30, 0}}), until: [mins: 20])
+      |> Interval.duration(:timestamp)
+    #=> {0, 0, 1200}
+
+  """
+  def duration(interval, unit) do
+    Date.diff(interval.from, interval.until, unit)
   end
 
   @doc """

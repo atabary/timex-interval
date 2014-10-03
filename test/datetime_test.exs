@@ -35,4 +35,14 @@ defmodule TimexInterval.DateTimeIntervalTest do
         |> Enum.map(&DateFormat.format!(&1, "%H:%M", :strftime))
     assert temp == ["15:00", "15:10", "15:20", "15:30", "15:40", "15:50"]
   end
+
+  test :duration do
+    temp = I.new(from: Date.from({2014, 9, 22}), until: [months: 5])
+        |> I.duration(:months)
+    assert temp == 5
+
+    # temp = I.new(from: Date.from({{2014, 9, 22}, {15, 30, 0}}), until: [mins: 20])
+    #     |> I.duration(:timestamp)
+    # assert temp == {0, 0, 1200}
+  end
 end

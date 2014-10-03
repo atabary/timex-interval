@@ -71,3 +71,24 @@ Interval.new(from: Date.from({{2014, 9, 22}, {15, 0, 0}}), until: [hours: 1])
 |> Enum.map(fn(dt) -> DateFormat.format!(dt, "%H:%M", :strftime) end)
 #=> ["15:00", "15:10", "15:20", "15:30", "15:40", "15:50"]
 ```
+
+## Duration
+
+You can query an interval to know its duration, given a time unit.
+
+When the unit is one of `:secs`, `:mins`, `:hours`, `:days`, `:weeks`, `:months`, `:years`, the result is an `integer`.
+
+When the unit is `:timestamp`, the result is a tuple representing a valid `Timex.Time`.
+
+```elixir
+use Timex
+alias TimexInterval.DateTimeInterval, as: Interval
+
+Interval.new(from: Date.from({2014, 9, 22}), until: [months: 5])
+|> Interval.duration(:months)
+#=> 5
+
+Interval.new(from: Date.from({{2014, 9, 22}, {15, 30, 0}}), until: [mins: 20])
+|> Interval.duration(:timestamp)
+#=> {0, 0, 1200}
+```
