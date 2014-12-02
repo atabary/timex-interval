@@ -1,1 +1,1 @@
-%{"timex": {:package, "0.12.9"}}
+%{"timex": {:hex, :timex, "0.13.1"}}
