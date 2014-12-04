@@ -3,7 +3,7 @@ defmodule TimexInterval.Mixfile do
 
   def project do
     [ app: :timex_interval,
-      version: "0.3.0",
+      version: "0.4.0",
       elixir: ">=1.0.0",
       description: "A date/time interval library for Elixir projects, based on Timex.",
       package: package,
