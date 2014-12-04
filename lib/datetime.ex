@@ -30,20 +30,29 @@ defmodule TimexInterval.DateTimeInterval do
 
   ## Examples
 
-    > use Timex
-    > alias TimexInterval.DateTimeInterval, as: Interval
+    iex> use Timex
+    ...> use TimexInterval
+    ...> DateTimeInterval.new(from: Date.from({2014, 9, 22}), until: Date.from({2014, 9, 29}))
+    ...> |> DateTimeInterval.format!("%Y-%m-%d")
+    "[2014-09-22, 2014-09-29)"
 
-    > Interval.new(from: Date.from({2014, 9, 22}), until: Date.from({2014, 9, 29}))
-      |> Interval.format!("%Y-%m-%d")
-    #=> "[2014-09-22, 2014-09-29)"
+    iex> use Timex
+    ...> use TimexInterval
+    ...> DateTimeInterval.new(from: Date.from({2014, 9, 22}), until: [days: 7])
+    ...> |> DateTimeInterval.format!("%Y-%m-%d")
+    "[2014-09-22, 2014-09-29)"
 
-    > Interval.new(from: Date.from({2014, 9, 22}), until: [months: 5])
-      |> Interval.format!("%Y-%m-%d")
-    #=> "[2014-09-22, 2015-02-22)"
+    iex> use Timex
+    ...> use TimexInterval
+    ...> DateTimeInterval.new(from: Date.from({2014, 9, 22}), until: [days: 7], left_open: true, right_open: false)
+    ...> |> DateTimeInterval.format!("%Y-%m-%d")
+    "(2014-09-22, 2014-09-29]"
 
-    > Interval.new(from: Date.from({{2014, 9, 22}, {15, 30, 0}}), until: [mins: 20], right_open: false)
-      |> Interval.format!("%H:%M")
-    #=> "[15:30, 15:50]"
+    iex> use Timex
+    ...> use TimexInterval
+    ...> DateTimeInterval.new(from: Date.from({{2014, 9, 22}, {15, 30, 0}}), until: [mins: 20], right_open: false)
+    ...> |> DateTimeInterval.format!("%H:%M")
+    "[15:30, 15:50]"
 
   """
   def new(keywords \\ []) do
@@ -66,16 +75,17 @@ defmodule TimexInterval.DateTimeInterval do
 
   ## Example
 
-    > use Timex
-    > alias TimexInterval.DateTimeInterval, as: Interval
+    iex> use Timex
+    ...> use TimexInterval
+    ...> DateTimeInterval.new(from: Date.from({2014, 9, 22}), until: [months: 5])
+    ...> |> DateTimeInterval.duration(:months)
+    5
 
-    > Interval.new(from: Date.from({2014, 9, 22}), until: [months: 5])
-      |> Interval.duration(:months)
-    #=> 5
-
-    > Interval.new(from: Date.from({{2014, 9, 22}, {15, 30, 0}}), until: [mins: 20])
-      |> Interval.duration(:timestamp)
-    #=> {0, 0, 1200}
+    iex> use Timex
+    ...> use TimexInterval
+    ...> DateTimeInterval.new(from: Date.from({{2014, 9, 22}, {15, 30, 0}}), until: [mins: 20])
+    ...> |> DateTimeInterval.duration(:timestamp)
+    {0, 0, 1200}
 
   """
   def duration(interval, unit) do
@@ -89,18 +99,23 @@ defmodule TimexInterval.DateTimeInterval do
 
   ## Examples
 
-    > use Timex
-    > alias TimexInterval.DateTimeInterval, as: Interval
-    > i = Interval.new(from: Date.from({2014, 9, 22}), until: [days: 3], right_open: false)
+    iex> use Timex
+    ...> use TimexInterval
+    ...> DateTimeInterval.new(from: Date.from({2014, 9, 22}), until: [days: 3], right_open: false)
+    ...> |> DateTimeInterval.with_step([days: 1]) |> Enum.map(&DateFormat.format!(&1, "%Y-%m-%d", :strftime))
+    ["2014-09-22", "2014-09-23", "2014-09-24", "2014-09-25"]
 
-    > i |> Interval.with_step([days: 1]) |> Enum.map(fn(dt) -> DateFormat.format!(dt, "%Y-%m-%d", :strftime) end)
-    #=> ["2014-09-22", "2014-09-23", "2014-09-24", "2014-09-25"]
+    iex> use Timex
+    ...> use TimexInterval
+    ...> DateTimeInterval.new(from: Date.from({2014, 9, 22}), until: [days: 3], right_open: false)
+    ...> |> DateTimeInterval.with_step([days: 2]) |> Enum.map(&DateFormat.format!(&1, "%Y-%m-%d", :strftime))
+    ["2014-09-22", "2014-09-24"]
 
-    > i |> Interval.with_step([days: 2]) |> Enum.map(fn(dt) -> DateFormat.format!(dt, "%Y-%m-%d", :strftime) end)
-    #=> ["2014-09-22", "2014-09-24"]
-
-    > i |> Interval.with_step([days: 3]) |> Enum.map(fn(dt) -> DateFormat.format!(dt, "%Y-%m-%d", :strftime) end)
-    #=> ["2014-09-22", "2014-09-25"]
+    iex> use Timex
+    ...> use TimexInterval
+    ...> DateTimeInterval.new(from: Date.from({2014, 9, 22}), until: [days: 3], right_open: false)
+    ...> |> DateTimeInterval.with_step([days: 3]) |> Enum.map(&DateFormat.format!(&1, "%Y-%m-%d", :strftime))
+    ["2014-09-22", "2014-09-25"]
 
   """
   def with_step(interval, step) do
@@ -110,16 +125,21 @@ defmodule TimexInterval.DateTimeInterval do
   @doc """
   Return a human readable version of the interval.
 
+  The default formatter is `:strftime`, with the format `%Y-%m-%d %H:%M`
+
   ## Examples
 
-    > use Timex
-    > alias TimexInterval.DateTimeInterval, as: Interval
+    iex> use Timex
+    ...> use TimexInterval
+    ...> DateTimeInterval.new(from: Date.from({2014, 9, 22}), until: [days: 3])
+    ...> |> DateTimeInterval.format!()
+    "[2014-09-22 00:00, 2014-09-25 00:00)"
 
-    > Interval.new(from: Date.from({2014, 9, 22}), until: [days: 3], right_open: false) |> Interval.format!()
-    #=> "[2014-09-22 00:00, 2014-09-25 00:00]"
-
-    > Interval.new(from: Date.from({2014, 9, 22}), until: [days: 3]) |> Interval.format!("%Y-%m-%d")
-    #=> "[2014-09-22, 2014-09-25)"
+    iex> use Timex
+    ...> use TimexInterval
+    ...> DateTimeInterval.new(from: Date.from({2014, 9, 22}), until: [days: 3])
+    ...> |> DateTimeInterval.format!("%Y-%m-%d")
+    "[2014-09-22, 2014-09-25)"
 
   """
   def format!(interval, format_string \\ "%Y-%m-%d %H:%M", formatter \\ :strftime) do
