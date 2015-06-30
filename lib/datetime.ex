@@ -85,7 +85,7 @@ defmodule TimexInterval.DateTimeInterval do
     ...> use TimexInterval
     ...> DateTimeInterval.new(from: Date.from({{2014, 9, 22}, {15, 30, 0}}), until: [mins: 20])
     ...> |> DateTimeInterval.duration(:timestamp)
-    {0, 0, 1200}
+    {0, 1200, 0}
 
   """
   def duration(interval, unit) do
