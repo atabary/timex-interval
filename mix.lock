@@ -1,1 +1,2 @@
-%{"timex": {:hex, :timex, "0.13.3"}}
+%{"timex": {:hex, :timex, "0.15.0"},
+  "tzdata": {:hex, :tzdata, "0.1.6"}}
