@@ -8,3 +8,4 @@ otp_release:
 before_script:
   - mix deps.get --only test
 script: mix test
+sudo: false
