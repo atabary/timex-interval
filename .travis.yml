@@ -7,5 +7,4 @@ otp_release:
   - 17.1
 before_script:
   - mix deps.get --only test
-script: mix test
 sudo: false
