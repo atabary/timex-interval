@@ -7,7 +7,6 @@ defmodule TimexInterval.DateTimeInterval do
   @default_right_open true
   @default_step       [days: 1]
 
-  @derive Access
   defstruct from:       @default_from,
             until:      @default_until,
             left_open:  @default_left_open,
