@@ -1,5 +1,9 @@
 # Timex Interval
 
+**NOTE:** This project has been merged into Timex, as `Timex.Interval`, as of `1.0.0-pre`. If you are
+on that version of Timex or higher, it is recommended you use that instead. However for prior releases
+of Timex, this project is still actively maintained :)
+
 [![hex.pm version](https://img.shields.io/hexpm/v/timex_interval.svg)](https://hex.pm/packages/timex_interval) [![travis.ci build status](http://img.shields.io/travis/atabary/timex-interval/master.svg)](https://travis-ci.org/atabary/timex-interval)
 
 Timex Interval is an extension of [Timex](https://github.com/bitwalker/timex) that deals with date/time intervals.
