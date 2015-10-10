@@ -3,6 +3,11 @@ Changelog for Timex Interval
 
 This file lists the changes in each moment version.
 
+0.6.0
+-----
+
+- `Timex` minimum required version set to `0.19`.
+
 0.5.0
 -----
 
