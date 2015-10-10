@@ -21,7 +21,7 @@ defmodule TimexInterval.Mixfile do
 
   defp package do
     [ files: ["lib", "mix.exs", "README.md", "LICENSE"],
-      contributors: ["Alexis Tabary"],
+      maintainers: ["Alexis Tabary", "Paul Schoenfelder"],
       licenses: ["Apache 2"],
       links: %{"GitHub" => "https://github.com/atabary/timex-interval"} ]
   end
